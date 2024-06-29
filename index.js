@@ -24,7 +24,7 @@ app.get('/', (req, res) => {
 
 // Ruta para iniciar la autorización
 app.get('/auth', (req, res) => {
-    const authURL = `https://auth.mercadolibre.com.mx/authorization?response_type=code&client_id=${process.env.CLIENT_ID}&redirect_uri=${process.env.REDIRECT_URI}`;
+    const authURL = `https://auth.mercadolibre.com/authorization?response_type=code&client_id=${process.env.CLIENT_ID}&redirect_uri=${process.env.REDIRECT_URI}`;
     res.redirect(authURL);
 });
 
@@ -37,12 +37,17 @@ app.get('/callback', async (req, res) => {
     }
 
     try {
-        const response = await axios.post('https://api.mercadolibre.com/oauth/token', {
-            grant_type: 'authorization_code',
-            client_id: process.env.CLIENT_ID,
-            client_secret: process.env.CLIENT_SECRET,
-            code: code,
-            redirect_uri: process.env.REDIRECT_URI
+        const response = await axios.post('https://api.mercadolibre.com/oauth/token', null, {
+            params: {
+                grant_type: 'authorization_code',
+                client_id: process.env.CLIENT_ID,
+                client_secret: process.env.CLIENT_SECRET,
+                code: code,
+                redirect_uri: process.env.REDIRECT_URI
+            },
+            headers: {
+                'content-type': 'application/x-www-form-urlencoded'
+            }
         });
 
         const { access_token, refresh_token } = response.data;
