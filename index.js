@@ -17,14 +17,10 @@ sequelize.sync()
     console.error('Error synchronizing the database:', err);
   });
 
-// Ruta raíz para verificar que la aplicación está funcionando
-app.get('/', (req, res) => {
-    res.send('Bienvenido a la aplicación de integración con Mercado Libre!');
-});
 
 // Ruta para iniciar la autorización
 app.get('/auth', (req, res) => {
-    const authURL = `https://auth.mercadolibre.com/authorization?response_type=code&client_id=${process.env.CLIENT_ID}&redirect_uri=${process.env.REDIRECT_URI}`;
+    const authURL = `https://auth.mercadolibre.com.mx/authorization?response_type=code&client_id=${process.env.CLIENT_ID}&redirect_uri=${process.env.REDIRECT_URI}`;
     res.redirect(authURL);
 });
 
