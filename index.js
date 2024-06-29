@@ -17,6 +17,10 @@ sequelize.sync()
     console.error('Error synchronizing the database:', err);
   });
 
+// Ruta raíz para verificar que la aplicación está funcionando
+app.get('/', (req, res) => {
+    res.send('Bienvenido a la aplicación de integración con Mercado Libre!');
+});
 
 // Ruta para iniciar la autorización
 app.get('/auth', (req, res) => {
@@ -51,7 +55,7 @@ app.get('/callback', async (req, res) => {
         res.send('<h1>Authorization successful!</h1><p>Access token and refresh token received and stored in the database.</p>');
     } catch (error) {
         console.error('Error during authorization', error.response ? error.response.data : error.message);
-        res.status(500).send('Error during authorization');
+        res.status(500).send(`<h1>Error during authorization</h1><p>${error.response ? error.response.data : error.message}</p>`);
     }
 });
 
