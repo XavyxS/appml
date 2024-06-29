@@ -4,7 +4,12 @@ const dotenv = require('dotenv');
 dotenv.config();
 
 const app = express();
-const port = 3000;
+const port = process.env.PORT || 3000;
+
+// Ruta raíz para verificar que la aplicación está funcionando
+app.get('/', (req, res) => {
+    res.send('Bienvenido a la aplicación de integración con Mercado Libre!');
+});
 
 app.get('/auth', (req, res) => {
     const authURL = `https://auth.mercadolibre.com/authorization?response_type=code&client_id=${process.env.CLIENT_ID}&redirect_uri=${process.env.REDIRECT_URI}`;
