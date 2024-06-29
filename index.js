@@ -9,11 +9,13 @@ const app = express();
 const port = process.env.PORT || 3000;
 
 // Sincronizar modelos con la base de datos
-sequelize.sync().then(() => {
+sequelize.sync()
+  .then(() => {
     console.log('Database synchronized');
-}).catch(err => {
+  })
+  .catch(err => {
     console.error('Error synchronizing the database:', err);
-});
+  });
 
 // Ruta raíz para verificar que la aplicación está funcionando
 app.get('/', (req, res) => {
@@ -47,12 +49,24 @@ app.get('/callback', async (req, res) => {
 
         // Guarda tokens en la base de datos
         await Token.create({ access_token, refresh_token });
-
+        console.log('Tokens stored in the database');
+        
         // Muestra una página de confirmación
         res.send('<h1>Authorization successful!</h1><p>Access token and refresh token received and stored in the database.</p>');
     } catch (error) {
         console.error('Error during authorization', error.response ? error.response.data : error.message);
         res.status(500).send('Error during authorization');
+    }
+});
+
+// Ruta para listar los tokens almacenados en la base de datos
+app.get('/tokens', async (req, res) => {
+    try {
+        const tokens = await Token.findAll();
+        res.json(tokens);
+    } catch (error) {
+        console.error('Error fetching tokens', error);
+        res.status(500).send('Error fetching tokens');
     }
 });
 
