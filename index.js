@@ -33,7 +33,7 @@ app.get('/', (req, res) => {
 // Ruta para iniciar la autorización
 app.get('/auth', (req, res) => {
     console.log('Redirecting to Mercado Libre authorization URL');
-    const authURL = `https://auth.mercadolibre.com.mx/authorization?response_type=code&client_id=${process.env.CLIENT_ID}&redirect_uri=${process.env.REDIRECT_URI}/callback`;
+    const authURL = `https://auth.mercadolibre.com.mx/authorization?response_type=code&client_id=${process.env.CLIENT_ID}&redirect_uri=${process.env.REDIRECT_URI}`;
     res.redirect(authURL);
 });
 
