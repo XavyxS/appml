@@ -1,11 +1,28 @@
 const express = require('express');
 const axios = require('axios');
 const dotenv = require('dotenv');
-const connection = require('./db');
+const mysql = require('mysql2');
 dotenv.config();
 
 const app = express();
 const port = process.env.PORT || 3000;
+
+// Configuración de la conexión a la base de datos
+const connection = mysql.createConnection({
+  host: process.env.DB_HOST,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME
+});
+
+// Conexión a la base de datos
+connection.connect((err) => {
+  if (err) {
+    console.error('Error connecting to the database: ' + err.stack);
+    return;
+  }
+  console.log('Connected to the database as id ' + connection.threadId);
+});
 
 // Ruta raíz para verificar que la aplicación está funcionando
 app.get('/', (req, res) => {
@@ -23,6 +40,7 @@ app.get('/callback', async (req, res) => {
     const { code } = req.query;
 
     if (!code) {
+        console.error('Authorization code not provided');
         return res.status(400).send('Authorization code not provided');
     }
 
@@ -47,10 +65,18 @@ app.get('/callback', async (req, res) => {
         const { access_token, refresh_token, expires_in, user_id } = response.data;
 
         // Guarda tokens en la base de datos
-        const sql = 'INSERT INTO tokens (id, access_token, refresh_token, expires_in, created_at) VALUES (?, ?, ?, ?, NOW())';
-        connection.query(sql, [user_id, access_token, refresh_token, expires_in], (err, results) => {
-            if (err) {
-                console.error('Error storing tokens in the database:', err);
+        const newToken = {
+            id: user_id,
+            access_token,
+            refresh_token,
+            expires_in,
+            created_at: new Date()
+        };
+
+        const query = 'INSERT INTO tokens SET ?';
+        connection.query(query, newToken, (error, results, fields) => {
+            if (error) {
+                console.error('Error storing tokens in the database:', error.stack);
                 return res.status(500).send('Error storing tokens in the database');
             }
             console.log('Tokens stored in the database:', results);
@@ -62,16 +88,14 @@ app.get('/callback', async (req, res) => {
         console.error('Error during authorization', error.response ? error.response.data : error.message);
         res.status(500).send(`<h1>Error during authorization</h1><p>${error.response ? error.response.data : error.message}</p>`);
     }
-
-    console.log('End of callback function');
 });
 
 // Ruta para listar los tokens almacenados en la base de datos
 app.get('/tokens', async (req, res) => {
-    const sql = 'SELECT * FROM tokens';
-    connection.query(sql, (err, results) => {
+    const query = 'SELECT * FROM tokens';
+    connection.query(query, (err, results) => {
         if (err) {
-            console.error('Error fetching tokens', err);
+            console.error('Error fetching tokens', err.stack);
             return res.status(500).send('Error fetching tokens');
         }
         res.json(results);
