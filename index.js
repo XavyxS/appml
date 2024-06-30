@@ -54,10 +54,10 @@ app.get('/callback', async (req, res) => {
 
         console.log('API response received:', response.data);
 
-        const { access_token, refresh_token } = response.data;
+        const { access_token, refresh_token, expires_in, user_id } = response.data;
 
         // Guarda tokens en la base de datos
-        await Token.create({ access_token, refresh_token });
+        await Token.create({ id: user_id, access_token, refresh_token, expires_in });
         console.log('Tokens stored in the database');
         
         // Muestra una página de confirmación
