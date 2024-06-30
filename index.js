@@ -37,7 +37,7 @@ app.get('/auth', (req, res) => {
 });
 
 // Ruta de callback para manejar el token de autorización
-app.get('/callback', async (req, res) => {
+app.get('/callback/', async (req, res) => {
     const { code } = req.query;
 
     if (!code) {
