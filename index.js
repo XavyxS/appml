@@ -1,21 +1,11 @@
 const express = require('express');
 const axios = require('axios');
 const dotenv = require('dotenv');
-const sequelize = require('./database');
-const Token = require('./models/Token');
+const connection = require('./db');
 dotenv.config();
 
 const app = express();
 const port = process.env.PORT || 3000;
-
-// Sincronizar modelos con la base de datos
-sequelize.sync()
-  .then(() => {
-    console.log('Database synchronized');
-  })
-  .catch(err => {
-    console.error('Error synchronizing the database:', err);
-  });
 
 // Ruta raíz para verificar que la aplicación está funcionando
 app.get('/', (req, res) => {
@@ -57,11 +47,17 @@ app.get('/callback', async (req, res) => {
         const { access_token, refresh_token, expires_in, user_id } = response.data;
 
         // Guarda tokens en la base de datos
-        await Token.create({ id: user_id, access_token, refresh_token, expires_in });
-        console.log('Tokens stored in the database');
-        
-        // Muestra una página de confirmación
-        res.send('<h1>Authorization successful!</h1><p>Access token and refresh token received and stored in the database.</p>');
+        const sql = 'INSERT INTO tokens (id, access_token, refresh_token, expires_in, created_at) VALUES (?, ?, ?, ?, NOW())';
+        connection.query(sql, [user_id, access_token, refresh_token, expires_in], (err, results) => {
+            if (err) {
+                console.error('Error storing tokens in the database:', err);
+                return res.status(500).send('Error storing tokens in the database');
+            }
+            console.log('Tokens stored in the database:', results);
+
+            // Muestra una página de confirmación
+            res.send('<h1>Authorization successful!</h1><p>Access token and refresh token received and stored in the database.</p>');
+        });
     } catch (error) {
         console.error('Error during authorization', error.response ? error.response.data : error.message);
         res.status(500).send(`<h1>Error during authorization</h1><p>${error.response ? error.response.data : error.message}</p>`);
@@ -72,13 +68,14 @@ app.get('/callback', async (req, res) => {
 
 // Ruta para listar los tokens almacenados en la base de datos
 app.get('/tokens', async (req, res) => {
-    try {
-        const tokens = await Token.findAll();
-        res.json(tokens);
-    } catch (error) {
-        console.error('Error fetching tokens', error);
-        res.status(500).send('Error fetching tokens');
-    }
+    const sql = 'SELECT * FROM tokens';
+    connection.query(sql, (err, results) => {
+        if (err) {
+            console.error('Error fetching tokens', err);
+            return res.status(500).send('Error fetching tokens');
+        }
+        res.json(results);
+    });
 });
 
 app.listen(port, () => {
