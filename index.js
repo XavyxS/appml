@@ -45,7 +45,7 @@ app.get('/debug-callback', (req, res) => {
 
 // Ruta de callback para manejar el token de autorización
 app.get('/codeback', async (req, res) => {
-    console.log('/codeback endpoint hit');
+    console.log('/callback endpoint hit');
     const { code } = req.query;
 
     if (!code) {
@@ -62,7 +62,7 @@ app.get('/codeback', async (req, res) => {
                 client_id: process.env.CLIENT_ID,
                 client_secret: process.env.CLIENT_SECRET,
                 code: code,
-                redirect_uri: `${process.env.REDIRECT_URI}/callback`
+                redirect_uri: process.env.REDIRECT_URI
             },
             headers: {
                 'content-type': 'application/x-www-form-urlencoded'
