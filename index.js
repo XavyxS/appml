@@ -8,20 +8,14 @@ const app = express();
 const port = process.env.PORT || 3000;
 
 // Configuración de la conexión a la base de datos
-const connection = mysql.createConnection({
+const connection = mysql.createPool({
   host: process.env.DB_HOST,
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
-  database: process.env.DB_NAME
-});
-
-// Conexión a la base de datos
-connection.connect((err) => {
-  if (err) {
-    console.error('Error connecting to the database: ' + err.stack);
-    return;
-  }
-  console.log('Connected to the database as id ' + connection.threadId);
+  database: process.env.DB_NAME,
+  waitForConnections: true,
+  connectionLimit: 10,
+  queueLimit: 0
 });
 
 // Ruta raíz para verificar que la aplicación está funcionando
@@ -33,14 +27,8 @@ app.get('/', (req, res) => {
 // Ruta para iniciar la autorización
 app.get('/auth', (req, res) => {
     console.log('Redirecting to Mercado Libre authorization URL');
-    const authURL = `https://auth.mercadolibre.com/authorization?response_type=code&client_id=${process.env.CLIENT_ID}&redirect_uri=${process.env.REDIRECT_URI}`;
+    const authURL = `https://auth.mercadolibre.com.mx/authorization?response_type=code&client_id=${process.env.CLIENT_ID}&redirect_uri=${process.env.REDIRECT_URI}`;
     res.redirect(authURL);
-});
-
-// Ruta de depuración para confirmar que /codeback se está accediendo
-app.get('/debug-codeback', (req, res) => {
-    console.log('Debug codeback accessed');
-    res.send('Debug codeback accessed');
 });
 
 // Ruta de callback para manejar el token de autorización
@@ -71,7 +59,7 @@ app.get('/codeback', async (req, res) => {
 
         console.log('API response received:', response.data);
 
-        const { access_token, refresh_token, expires_in, user_id } = response.data;
+        const { access_token, refresh_token, expires_in, user_id, scope, token_type } = response.data;
 
         // Guarda tokens en la base de datos
         const newToken = {
@@ -79,7 +67,9 @@ app.get('/codeback', async (req, res) => {
             access_token,
             refresh_token,
             expires_in,
-            created_at: new Date()  // Añadir created_at correctamente
+            scope,
+            token_type,
+            created_at: new Date()
         };
 
         console.log('Token to be stored:', newToken);
