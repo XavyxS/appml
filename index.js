@@ -24,7 +24,7 @@ app.get('/', (req, res) => {
 
 // Ruta para iniciar la autorización
 app.get('/auth', (req, res) => {
-    const authURL = `https://auth.mercadolibre.com/authorization?response_type=code&client_id=${process.env.CLIENT_ID}&redirect_uri=${process.env.REDIRECT_URI}`;
+    const authURL = `https://auth.mercadolibre.com.mx/authorization?response_type=code&client_id=${process.env.CLIENT_ID}&redirect_uri=${process.env.REDIRECT_URI}`;
     res.redirect(authURL);
 });
 
@@ -35,6 +35,8 @@ app.get('/callback', async (req, res) => {
     if (!code) {
         return res.status(400).send('Authorization code not provided');
     }
+
+    console.log(`Authorization code received: ${code}`);
 
     try {
         const response = await axios.post('https://api.mercadolibre.com/oauth/token', null, {
