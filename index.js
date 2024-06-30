@@ -106,18 +106,6 @@ app.get('/codeback', async (req, res) => {
     console.log('End of codeback function');
 });
 
-// Ruta para listar los tokens almacenados en la base de datos
-app.get('/tokens', (req, res) => {
-    const query = 'SELECT * FROM tokens';
-    connection.query(query, (err, results) => {
-        if (err) {
-            console.error('Error fetching tokens', err.stack);
-            return res.status(500).send('Error fetching tokens');
-        }
-        res.json(results);
-    });
-});
-
 app.listen(port, () => {
     console.log(`App listening at http://localhost:${port}`);
 });
