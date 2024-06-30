@@ -61,28 +61,42 @@ app.get('/codeback', async (req, res) => {
 
         const { access_token, refresh_token, expires_in, user_id, scope, token_type } = response.data;
 
-        // Guarda tokens en la base de datos
-        const newToken = {
-            user_id,
-            access_token,
-            refresh_token,
-            expires_in,
-            scope,
-            token_type
-        };
-
-        console.log('Token to be stored:', newToken);
-
-        const query = 'INSERT INTO tokens SET ?';
-        connection.query(query, newToken, (error, results, fields) => {
-            if (error) {
-                console.error('Error storing tokens in the database:', error.stack);
-                return res.status(500).send('Error storing tokens in the database');
+        // Verificar si el user_id ya existe en la base de datos
+        const checkQuery = 'SELECT * FROM tokens WHERE user_id = ?';
+        connection.query(checkQuery, [user_id], (checkError, checkResults) => {
+            if (checkError) {
+                console.error('Error checking user_id in the database:', checkError.stack);
+                return res.status(500).send('Error checking user_id in the database');
             }
-            console.log('Tokens stored in the database:', results);
 
-            // Muestra una página de confirmación
-            res.send('<h1>Authorization successful!</h1><p>Access token and refresh token received and stored in the database.</p>');
+            if (checkResults.length > 0) {
+                console.log('user_id already exists in the database. Skipping insertion.');
+                return res.send('<h1>Authorization successful!</h1><p>Access token and refresh token already stored in the database.</p>');
+            }
+
+            // Guarda tokens en la base de datos
+            const newToken = {
+                user_id,
+                access_token,
+                refresh_token,
+                expires_in,
+                scope,
+                token_type
+            };
+
+            console.log('Token to be stored:', newToken);
+
+            const query = 'INSERT INTO tokens SET ?';
+            connection.query(query, newToken, (error, results, fields) => {
+                if (error) {
+                    console.error('Error storing tokens in the database:', error.stack);
+                    return res.status(500).send('Error storing tokens in the database');
+                }
+                console.log('Tokens stored in the database:', results);
+
+                // Muestra una página de confirmación
+                res.send('<h1>Authorization successful!</h1><p>Access token and refresh token received and stored in the database.</p>');
+            });
         });
     } catch (error) {
         console.error('Error during authorization', error.response ? error.response.data : error.message);
