@@ -31,7 +31,7 @@ app.get('/', (req, res) => {
 
 // Ruta para iniciar la autorización
 app.get('/auth', (req, res) => {
-    const authURL = `https://auth.mercadolibre.com/authorization?response_type=code&client_id=${process.env.CLIENT_ID}&redirect_uri=${process.env.REDIRECT_URI}`;
+    const authURL = `https://auth.mercadolibre.com.mx/authorization?response_type=code&client_id=${process.env.CLIENT_ID}&redirect_uri=${process.env.REDIRECT_URI}`;
     res.redirect(authURL);
 });
 
@@ -73,6 +73,8 @@ app.get('/callback', async (req, res) => {
             created_at: new Date()
         };
 
+        console.log('Token to be stored:', newToken);
+
         const query = 'INSERT INTO tokens SET ?';
         connection.query(query, newToken, (error, results, fields) => {
             if (error) {
@@ -88,10 +90,12 @@ app.get('/callback', async (req, res) => {
         console.error('Error during authorization', error.response ? error.response.data : error.message);
         res.status(500).send(`<h1>Error during authorization</h1><p>${error.response ? error.response.data : error.message}</p>`);
     }
+
+    console.log('End of callback function');
 });
 
 // Ruta para listar los tokens almacenados en la base de datos
-app.get('/tokens', async (req, res) => {
+app.get('/tokens', (req, res) => {
     const query = 'SELECT * FROM tokens';
     connection.query(query, (err, results) => {
         if (err) {
