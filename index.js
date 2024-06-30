@@ -63,13 +63,12 @@ app.get('/codeback', async (req, res) => {
 
         // Guarda tokens en la base de datos
         const newToken = {
-            id: user_id,
+            user_id,
             access_token,
             refresh_token,
             expires_in,
             scope,
-            token_type,
-            created_at: new Date()
+            token_type
         };
 
         console.log('Token to be stored:', newToken);
