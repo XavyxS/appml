@@ -33,19 +33,19 @@ app.get('/', (req, res) => {
 // Ruta para iniciar la autorización
 app.get('/auth', (req, res) => {
     console.log('Redirecting to Mercado Libre authorization URL');
-    const authURL = `https://auth.mercadolibre.com.mx/authorization?response_type=code&client_id=${process.env.CLIENT_ID}&redirect_uri=${process.env.REDIRECT_URI}`;
+    const authURL = `https://auth.mercadolibre.com/authorization?response_type=code&client_id=${process.env.CLIENT_ID}&redirect_uri=${process.env.REDIRECT_URI}`;
     res.redirect(authURL);
 });
 
-// Ruta de depuración para confirmar que /callback se está accediendo
-app.get('/debug-callback', (req, res) => {
-    console.log('Debug callback accessed');
-    res.send('Debug callback accessed');
+// Ruta de depuración para confirmar que /codeback se está accediendo
+app.get('/debug-codeback', (req, res) => {
+    console.log('Debug codeback accessed');
+    res.send('Debug codeback accessed');
 });
 
 // Ruta de callback para manejar el token de autorización
 app.get('/codeback', async (req, res) => {
-    console.log('/callback endpoint hit');
+    console.log('/codeback endpoint hit');
     const { code } = req.query;
 
     if (!code) {
@@ -79,7 +79,7 @@ app.get('/codeback', async (req, res) => {
             access_token,
             refresh_token,
             expires_in,
-            created_at
+            created_at: new Date()  // Añadir created_at correctamente
         };
 
         console.log('Token to be stored:', newToken);
@@ -100,7 +100,7 @@ app.get('/codeback', async (req, res) => {
         res.status(500).send(`<h1>Error during authorization</h1><p>${error.response ? error.response.data : error.message}</p>`);
     }
 
-    console.log('End of callback function');
+    console.log('End of codeback function');
 });
 
 // Ruta para listar los tokens almacenados en la base de datos
