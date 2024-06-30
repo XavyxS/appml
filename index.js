@@ -26,6 +26,7 @@ connection.connect((err) => {
 
 // Ruta raíz para verificar que la aplicación está funcionando
 app.get('/', (req, res) => {
+    console.log('Root URL accessed');
     res.send('Bienvenido a la aplicación de integración con Mercado Libre!');
 });
 
@@ -36,8 +37,15 @@ app.get('/auth', (req, res) => {
     res.redirect(authURL);
 });
 
+// Ruta de depuración para confirmar que /callback se está accediendo
+app.get('/debug-callback', (req, res) => {
+    console.log('Debug callback accessed');
+    res.send('Debug callback accessed');
+});
+
 // Ruta de callback para manejar el token de autorización
-app.get('/callback/', async (req, res) => {
+app.get('/callback', async (req, res) => {
+    console.log('/callback endpoint hit');
     const { code } = req.query;
 
     if (!code) {
