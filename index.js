@@ -150,6 +150,7 @@ app.get('/token/:user_id', async (req, res) => {
 // Nueva ruta para manejar las notificaciones de Mercado Libre
 app.post('/callback', (req, res) => {
     console.log('Notification received:', req.body);
+    console.log('Full URL:', `${req.protocol}://${req.get('host')}${req.originalUrl}`);
     res.status(200).send('Notification received');
 });
 
