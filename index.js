@@ -19,6 +19,10 @@ const connection = mysql.createPool({
   queueLimit: 0
 });
 
+// Middleware para analizar el cuerpo de las solicitudes como JSON
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+
 // Ruta raíz para verificar que la aplicación está funcionando correctamente.
 app.get('/', (req, res) => {
     res.send('Bienvenido a la aplicación de integración con Mercado Libre!');
@@ -147,12 +151,14 @@ app.get('/token/:user_id', async (req, res) => {
     });
 });
 
+
 // Nueva ruta para manejar las notificaciones de Mercado Libre
 app.post('/callback', (req, res) => {
     console.log('Notification received:', req.body);
     console.log('Full URL:', `${req.protocol}://${req.get('host')}${req.originalUrl}`);
     res.status(200).send('Notification received');
 });
+
 
 // Inicia el servidor en el puerto especificado.
 app.listen(port, () => {
