@@ -147,6 +147,12 @@ app.get('/token/:user_id', async (req, res) => {
     });
 });
 
+// Nueva ruta para manejar las notificaciones de Mercado Libre
+app.post('/callback', (req, res) => {
+    console.log('Notification received:', req.body);
+    res.status(200).send('Notification received');
+});
+
 // Inicia el servidor en el puerto especificado.
 app.listen(port, () => {
     console.log(`App listening at http://localhost:${port}`);
