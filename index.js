@@ -76,7 +76,7 @@ app.get('/codeback', async (req, res) => {
         expires_in,
         scope,
         token_type,
-        created_at: Date.now() // Establece el valor de created_at
+        created_at: Date.now() // Establece el valor de created_at en milisegundos
       };
 
       const query = 'INSERT INTO tokens SET ?';
@@ -117,7 +117,7 @@ app.get('/token/:user_id', async (req, res) => {
     console.log("DateNow", Date.now());
 
     // Verificar si el token aún es válido
-    if (tokenAge < expires_in) {
+    if (tokenAge < (expires_in - 3600)) {  // Actualizamos una hora antes de que expire
       console.log("tokenData", tokenData);
       return; // res.json({ access_token });
     }
@@ -140,8 +140,8 @@ app.get('/token/:user_id', async (req, res) => {
       const { access_token: new_access_token, refresh_token: new_refresh_token, expires_in: new_expires_in } = newTokenData;
 
       // Actualizar los tokens en la base de datos
-      const updateQuery = 'UPDATE tokens SET access_token = ?, refresh_token = ?, expires_in = ?, created_at = NOW() WHERE user_id = ?';
-      connection.query(updateQuery, [new_access_token, new_refresh_token, new_expires_in, user_id], (updateError) => {
+      const updateQuery = 'UPDATE tokens SET access_token = ?, refresh_token = ?, expires_in = ?, created_at = ? WHERE user_id = ?';
+      connection.query(updateQuery, [new_access_token, new_refresh_token, new_expires_in, Date.now(), user_id], (updateError) => {
         if (updateError) {
           return res.status(500).send('Error updating tokens in the database');
         }
@@ -166,8 +166,7 @@ app.post('/callback', (req, res) => {
 
   // Guardar la notificación en la base de datos
   const newNotification = {
-    _id: notification._id,
-    user_id: notification.user_id,
+    _id: notification.user_id,
     resource: notification.resource,
     topic: notification.topic,
     application_id: notification.application_id,
