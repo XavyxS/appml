@@ -116,7 +116,7 @@ app.get('/token/:user_id', async (req, res) => {
     // Verificar si el token aún es válido
     if (tokenAge < expires_in) {
       console.log("tokenData", tokenData);
-      return res.json({ access_token });
+      //return res.json({ access_token });
     }
 
     // Si el token ha expirado, obtener uno nuevo usando el refresh_token
@@ -143,7 +143,7 @@ app.get('/token/:user_id', async (req, res) => {
           return res.status(500).send('Error updating tokens in the database');
         }
         console.log("newTokenData", newTokenData);
-        res.json({ access_token: new_access_token });
+        //res.json({ access_token: new_access_token });
       });
     } catch (error) {
       res.status(500).send(`Error refreshing token: ${error.response ? error.response.data : error.message}`);
