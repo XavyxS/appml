@@ -11,7 +11,7 @@ const port = process.env.PORT || 3000;
 // de conexiones para manejar múltiples conexiones de manera eficiente.
 const connection = mysql.createPool({
   host: process.env.DB_HOST,
-  user: process.env.DB_HOST,
+  user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME,
   waitForConnections: true,
@@ -154,7 +154,33 @@ app.get('/token/:user_id', async (req, res) => {
 app.post('/callback', (req, res) => {
   console.log('Notification received:', req.body);
   console.log('Full URL:', `${req.protocol}://${req.get('host')}${req.originalUrl}`);
-  res.status(200).send('Notification received');
+  
+  const notification = req.body;
+
+  // Eliminar la "Z" de los campos sent y received
+  const sent = notification.sent.replace('Z', '');
+  const received = notification.received.replace('Z', '');
+
+  // Guardar la notificación en la base de datos
+  const newNotification = {
+    _id: notification.user_id,
+    resource: notification.resource,
+    topic: notification.topic,
+    application_id: notification.application_id,
+    attempts: notification.attempts,
+    sent,
+    received
+  };
+
+  const query = 'INSERT INTO notifications SET ?';
+  connection.query(query, newNotification, (error, results) => {
+    if (error) {
+      console.error('Error storing notification in the database:', error.stack);
+      return res.status(500).send('Error storing notification in the database');
+    }
+    console.log('Notification stored in the database:', results);
+    res.status(200).send('Notification received and stored');
+  });
 });
 
 // Inicia el servidor en el puerto especificado.
