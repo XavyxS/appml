@@ -76,7 +76,7 @@ app.get('/codeback', async (req, res) => {
         expires_in,
         scope,
         token_type,
-        created_at: new Date() // Establece el valor de created_at
+        created_at: new Date.now() // Establece el valor de created_at
       };
 
       const query = 'INSERT INTO tokens SET ?';
@@ -111,7 +111,7 @@ app.get('/token/:user_id', async (req, res) => {
 
     const tokenData = checkResults[0];
     const { access_token, refresh_token, expires_in, created_at } = tokenData;
-    const tokenAge = (Date.now() - new Date(created_at).getTime()) / 1000;
+    const tokenAge = (Date.now() - created_at) / 1000;
     console.log("tokenAge", tokenAge);
     console.log("expires_in", expires_in);
     console.log("DateNow", Date.now());
