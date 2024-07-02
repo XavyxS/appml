@@ -163,7 +163,8 @@ app.post('/callback', (req, res) => {
 
   // Guardar la notificación en la base de datos
   const newNotification = {
-    _id: notification.user_id,
+    _id: notification._id,
+    user_id: notification.user_id,
     resource: notification.resource,
     topic: notification.topic,
     application_id: notification.application_id,
