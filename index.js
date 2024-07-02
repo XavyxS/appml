@@ -113,6 +113,8 @@ app.get('/token/:user_id', async (req, res) => {
     const { access_token, refresh_token, expires_in, created_at } = tokenData;
     const tokenAge = (Date.now() - new Date(created_at).getTime()) / 1000;
     console.log("tokenAge", tokenAge);
+    console.log("expires_in", expires_in);
+    console.log("DateNow", Date.now());
 
     // Verificar si el token aún es válido
     if (tokenAge < expires_in) {
