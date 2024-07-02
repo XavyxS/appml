@@ -115,6 +115,7 @@ app.get('/token/:user_id', async (req, res) => {
 
     // Verificar si el token aún es válido
     if (tokenAge < expires_in) {
+      console.log("tokenData", tokenData);
       return res.json({ access_token });
     }
 
@@ -141,7 +142,7 @@ app.get('/token/:user_id', async (req, res) => {
         if (updateError) {
           return res.status(500).send('Error updating tokens in the database');
         }
-
+        console.log("newTokenData", newTokenData);
         res.json({ access_token: new_access_token });
       });
     } catch (error) {
@@ -153,7 +154,6 @@ app.get('/token/:user_id', async (req, res) => {
 // Nueva ruta para manejar las notificaciones de Mercado Libre
 app.post('/callback', (req, res) => {
   console.log('Notification received:', req.body);
-  console.log('Full URL:', `${req.protocol}://${req.get('host')}${req.originalUrl}`);
   
   const notification = req.body;
 
