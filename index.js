@@ -76,7 +76,7 @@ app.get('/codeback', async (req, res) => {
         expires_in,
         scope,
         token_type,
-        created_at: new Date.now() // Establece el valor de created_at
+        created_at: Date.now() // Establece el valor de created_at
       };
 
       const query = 'INSERT INTO tokens SET ?';
